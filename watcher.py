@@ -2,7 +2,7 @@
 """Forex plan watcher v2: reads plans.json, polls Twelve Data, sends Telegram alerts,
 tracks every signal to its result and keeps a journal.csv for later analysis.
 Alerts only. It never places trades. Standard library only."""
-import csv, io, json, os, uuid, urllib.request, urllib.parse
+import csv, io, json, os, sys, base64, uuid, urllib.request, urllib.parse
 from datetime import datetime, timezone, timedelta
 try:
     from zoneinfo import ZoneInfo
@@ -371,11 +371,25 @@ def handle_updates(state, trades):
             parts = text.split()
             try:
                 sym, px = parts[1].upper(), float(parts[2])
-                tr = next(x for x in reversed(trades) if x["plan"]["symbol"] == sym)
-                tr["fill"] = px; tr["placed"] = True; tr["placed_at"] = tr.get("placed_at") or iso(now_utc()); tr["state"] = "tracking"
-                tg(state, "Fill %s logged for %s. Tracking from your price." % (px, sym))
+                tr = next((x for x in reversed(trades) if x["plan"]["symbol"] == sym), None)
+                if tr is None:
+                    side = parts[3].lower(); stop = float(parts[4]); tgt = float(parts[5])
+                    dec = 3 if ("JPY" in sym or sym.startswith("XAU")) else 5
+                    nw = now_utc()
+                    plan = {"id": "MANUAL-" + sym, "symbol": sym, "strategy": "M", "side": side, "entry": px, "stop": stop,
+                            "target": tgt, "zone_lo": px, "zone_hi": px, "dec": dec}
+                    tr = {"id": "MANUAL-%s-%s" % (sym, nw.strftime("%m%dT%H%M")), "plan": plan, "state": "tracking",
+                          "signal_price": px, "signal_close": iso(nw), "touched_at": iso(nw),
+                          "ratio": abs(tgt - px) / max(abs(px - stop), 1e-9), "placed": True, "fill": px,
+                          "placed_at": iso(nw), "first_alert": iso(nw), "scan_from": iso(nw), "best": px, "worst": px,
+                          "last_call": False}
+                    trades.append(tr)
+                    tg(state, "Manual trade logged: %s %s at %s | stop %s | target %s. I am tracking it to the result." % (sym, side.upper(), px, stop, tgt))
+                else:
+                    tr["fill"] = px; tr["placed"] = True; tr["placed_at"] = tr.get("placed_at") or iso(now_utc()); tr["state"] = "tracking"
+                    tg(state, "Fill %s logged for %s. Tracking from your price." % (px, sym))
             except Exception:
-                tg(state, "Usage: /fill EURUSD 1.0990 (needs an open signal on that symbol)")
+                tg(state, "Usage: /fill EURUSD 1.0990  (open signal)  or  /fill USDJPY 159.95 sell 160.30 159.25  (manual trade: price, side, stop, target)")
         elif text.startswith("/start") or text.startswith("/help"):
             tg(state, "Commands: /status  /journal  /fill SYMBOL PRICE. Alerts only; I never place trades.")
 
@@ -471,8 +485,69 @@ def main():
     save(state)
 
 
+GH_TOKEN = os.environ.get("GITHUB_TOKEN", "").strip()
+GH_REPO = os.environ.get("GITHUB_REPOSITORY", "ashokenggdesign-cmyk/fxwatch")
+_remote_sha = {}
+_last_push = {"t": 0.0, "h": {}}
+
+
+def gh_api(method, path, body=None):
+    req = urllib.request.Request("https://api.github.com/repos/%s/contents/%s" % (GH_REPO, path),
+                                 data=json.dumps(body).encode() if body else None, method=method,
+                                 headers={"Authorization": "Bearer " + GH_TOKEN, "Accept": "application/vnd.github+json",
+                                          "User-Agent": "fxwatch"})
+    return json.loads(urllib.request.urlopen(req, timeout=20).read())
+
+
+def remote_pull():
+    """Restore state/journal saved in the repo (survives cancelled or restarted jobs)."""
+    if not GH_TOKEN: return
+    for name, path in (("state.json", STATE_PATH), ("journal.csv", JOURNAL_PATH)):
+        try:
+            r = gh_api("GET", "data/" + name)
+            _remote_sha[name] = r["sha"]
+            with open(path, "wb") as f: f.write(base64.b64decode(r["content"]))
+            print("restored", name)
+        except Exception as e:
+            print("restore skipped", name, e)
+
+
+def remote_push(force=False):
+    import time as _t
+    if not GH_TOKEN: return
+    if not force and _t.time() - _last_push["t"] < 300: return
+    _last_push["t"] = _t.time()
+    for name, path in (("state.json", STATE_PATH), ("journal.csv", JOURNAL_PATH)):
+        try: data = open(path, "rb").read()
+        except Exception: continue
+        h = hash(data)
+        if _last_push["h"].get(name) == h: continue
+        try:
+            body = {"message": "state update [skip ci]", "content": base64.b64encode(data).decode()}
+            if name not in _remote_sha:
+                try: _remote_sha[name] = gh_api("GET", "data/" + name)["sha"]
+                except Exception: pass
+            if name in _remote_sha: body["sha"] = _remote_sha[name]
+            r = gh_api("PUT", "data/" + name, body)
+            _remote_sha[name] = r["content"]["sha"]; _last_push["h"][name] = h
+        except Exception as e:
+            print("remote push failed", name, e); _remote_sha.pop(name, None)
+
+
+def quick_updates():
+    """Answer Telegram buttons and commands every few seconds without touching market data."""
+    state = load(STATE_PATH, None)
+    if not state or "trades" not in state: return
+    before = json.dumps(state.get("trades", []), sort_keys=True) + str(state.get("tg_offset"))
+    handle_updates(state, state["trades"])
+    if json.dumps(state.get("trades", []), sort_keys=True) + str(state.get("tg_offset")) != before:
+        save(state); remote_push(True)
+
+
 if __name__ == "__main__":
     import time as _t, traceback
+    try: sys.stdout.reconfigure(line_buffering=True)
+    except Exception: pass
     _mins = float(os.environ.get("LOOP_MINUTES", "0") or 0)
     _end = _t.time() + _mins * 60
     def _refresh_plans():
@@ -484,12 +559,18 @@ if __name__ == "__main__":
                 _f.write(_d)
         except Exception as _e:
             print("plans refresh failed", _e)
+    remote_pull()
     while True:
         _refresh_plans()
-        try:
-            main()
-        except Exception:
-            traceback.print_exc()
+        try: main()
+        except Exception: traceback.print_exc()
+        try: remote_push()
+        except Exception: traceback.print_exc()
         if _t.time() + 60 >= _end:
             break
-        _t.sleep(60)
+        for _i in range(20):
+            _t.sleep(3)
+            try: quick_updates()
+            except Exception: traceback.print_exc()
+    try: remote_push(True)
+    except Exception: pass
