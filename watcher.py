@@ -400,7 +400,7 @@ def main():
     for p in plans:
         old = state["plans"].get(p["id"])
         keep[p["id"]] = old if old and old.get("sig") == plan_sig(p) else \
-            {"stage": "idle", "sig": plan_sig(p), "armed_at": iso(t - timedelta(hours=1))}
+            {"stage": "idle", "sig": plan_sig(p), "armed_at": iso(t)}
     state["plans"] = keep
     if state.get("rev") != doc.get("rev"):
         state["rev"] = doc.get("rev")
