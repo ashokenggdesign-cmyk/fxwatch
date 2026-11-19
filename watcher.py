@@ -14,9 +14,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 STATE_PATH = os.environ.get("STATE_PATH", os.path.join(HERE, "state.json"))
 JOURNAL_PATH = os.environ.get("JOURNAL_PATH", os.path.join(HERE, "journal.csv"))
 PLANS_PATH = os.environ.get("PLANS_PATH", os.path.join(HERE, "plans.json"))
-TD_KEY = os.environ.get("TWELVEDATA_KEY", "")
-TG_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
-TG_CHAT_ENV = os.environ.get("TELEGRAM_CHAT_ID", "")
+TD_KEY = os.environ.get("TWELVEDATA_KEY", "").strip()
+TG_TOKEN = os.environ.get("TELEGRAM_TOKEN", "").strip()
+TG_CHAT_ENV = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 NEAR_PCT = 0.0030           # within 0.30% of the zone = "near"
 NEAR_EVERY_MIN = 10         # near but not yet in the zone
 FAR_EVERY_MIN = 45          # far from the zone
