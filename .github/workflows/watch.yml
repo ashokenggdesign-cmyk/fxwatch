@@ -16,7 +16,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
         with:
-          path: state.json
+          path: |
+            state.json
+            journal.csv
           key: state-${{ github.run_id }}
           restore-keys: state-
       - uses: actions/setup-python@v5
