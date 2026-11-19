@@ -472,4 +472,14 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import time as _t, traceback
+    _mins = float(os.environ.get("LOOP_MINUTES", "0") or 0)
+    _end = _t.time() + _mins * 60
+    while True:
+        try:
+            main()
+        except Exception:
+            traceback.print_exc()
+        if _t.time() + 60 >= _end:
+            break
+        _t.sleep(60)
