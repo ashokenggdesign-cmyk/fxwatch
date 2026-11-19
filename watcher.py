@@ -435,7 +435,7 @@ def main():
     data = {}
     for i in range(0, len(to_fetch), 8):
         try: data.update(fetch(to_fetch[i:i + 8]))
-        except Exception as e: print("fetch error", e)
+        except Exception as e: print("fetch error", e, getattr(e, "read", lambda: b"")()[:300])
     if to_fetch:
         state["credits"] = {today: used + len(to_fetch)}
         for s in data:
