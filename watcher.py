@@ -475,7 +475,17 @@ if __name__ == "__main__":
     import time as _t, traceback
     _mins = float(os.environ.get("LOOP_MINUTES", "0") or 0)
     _end = _t.time() + _mins * 60
+    def _refresh_plans():
+        try:
+            _u = "https://raw.githubusercontent.com/ashokenggdesign-cmyk/fxwatch/main/plans.json"
+            _d = urllib.request.urlopen(urllib.request.Request(_u, headers={"Cache-Control": "no-cache"}), timeout=15).read()
+            json.loads(_d)
+            with open(PLANS_PATH, "wb") as _f:
+                _f.write(_d)
+        except Exception as _e:
+            print("plans refresh failed", _e)
     while True:
+        _refresh_plans()
         try:
             main()
         except Exception:
