@@ -1,9 +1,12 @@
 {
-  "rev": "2026-11-19-3",
-  "updated": "2026-11-19 16:30 Paris",
+  "rev": "2026-11-19-4",
+  "updated": "2026-11-19 18:45 Paris",
   "plans": [
-    {"id":"USDCAD-B-buy","symbol":"USDCAD","strategy":"B","side":"buy","zone_lo":1.4266,"zone_hi":1.4279,"entry":1.4279,"stop":1.4249,"target":1.4355,"dec":5},
-    {"id":"USDCHF-A-buy","symbol":"USDCHF","strategy":"A","side":"buy","zone_lo":0.8396,"zone_hi":0.8410,"entry":0.8410,"stop":0.8392,"target":0.8446,"dec":5},
-    {"id":"USDJPY-C-sell","symbol":"USDJPY","strategy":"C","side":"sell","zone_lo":159.95,"zone_hi":160.16,"entry":159.95,"stop":160.30,"target":159.25,"dec":3}
+    {"id":"EURUSD-B4-sell","symbol":"EURUSD","strategy":"B","side":"sell","zone_lo":1.1025,"zone_hi":1.1037,"entry":1.1025,"stop":1.105,"target":1.0953,"dec":5},
+    {"id":"AUDUSD-B4-sell","symbol":"AUDUSD","strategy":"B","side":"sell","zone_lo":0.6754,"zone_hi":0.6767,"entry":0.6754,"stop":0.6785,"target":0.6662,"dec":5},
+    {"id":"USDJPY-B1-buy","symbol":"USDJPY","strategy":"B","side":"buy","zone_lo":159.2,"zone_hi":159.31,"entry":159.31,"stop":159.07,"target":159.97,"dec":3},
+    {"id":"USDJPY-C-sell","symbol":"USDJPY","strategy":"C","side":"sell","zone_lo":159.95,"zone_hi":160.16,"entry":159.95,"stop":160.3,"target":159.25,"dec":3},
+    {"id":"USDCHF-B4-buy","symbol":"USDCHF","strategy":"B","side":"buy","zone_lo":0.8374,"zone_hi":0.8384,"entry":0.8384,"stop":0.8363,"target":0.8443,"dec":5},
+    {"id":"USDCAD-B-buy","symbol":"USDCAD","strategy":"B","side":"buy","zone_lo":1.4266,"zone_hi":1.4279,"entry":1.4279,"stop":1.4249,"target":1.4355,"dec":5}
   ]
 }
