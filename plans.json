@@ -1,6 +1,6 @@
 {
- "rev": "2026-11-19-6",
- "updated": "2026-11-19 22:10 Paris",
+ "rev": "2026-11-20-1",
+ "updated": "2026-11-20 09:55 Paris",
  "plans": [
   {
    "id": "EURUSD-B4-sell",
@@ -15,16 +15,28 @@
    "dec": 5
   },
   {
-   "id": "USDJPY-B1-buy",
-   "symbol": "USDJPY",
+   "id": "GBPUSD-B1-sell",
+   "symbol": "GBPUSD",
    "strategy": "B",
-   "side": "buy",
-   "zone_lo": 159.2,
-   "zone_hi": 159.31,
-   "entry": 159.31,
-   "stop": 159.07,
-   "target": 159.97,
-   "dec": 3
+   "side": "sell",
+   "zone_lo": 1.3134,
+   "zone_hi": 1.3144,
+   "entry": 1.3134,
+   "stop": 1.3155,
+   "target": 1.3078,
+   "dec": 5
+  },
+  {
+   "id": "AUDUSD-B1-sell",
+   "symbol": "AUDUSD",
+   "strategy": "B",
+   "side": "sell",
+   "zone_lo": 0.669,
+   "zone_hi": 0.6697,
+   "entry": 0.669,
+   "stop": 0.6705,
+   "target": 0.6646,
+   "dec": 5
   }
  ]
 }
