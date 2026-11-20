@@ -1,6 +1,6 @@
 {
- "rev": "2026-11-20-1",
- "updated": "2026-11-20 09:55 Paris",
+ "rev": "2026-11-20-2",
+ "updated": "2026-11-20 11:50 Paris",
  "plans": [
   {
    "id": "EURUSD-B4-sell",
@@ -37,6 +37,18 @@
    "stop": 0.6705,
    "target": 0.6646,
    "dec": 5
+  },
+  {
+   "id": "XAUUSD-B1-sell",
+   "symbol": "XAUUSD",
+   "strategy": "B",
+   "side": "sell",
+   "zone_lo": 3656,
+   "zone_hi": 3677.5,
+   "entry": 3656,
+   "stop": 3700,
+   "target": 3527,
+   "dec": 2
   }
  ]
 }
