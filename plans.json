@@ -1,6 +1,6 @@
 {
-  "rev": "2026-11-23-2",
-  "updated": "2026-11-23 12:30 Paris",
+  "rev": "2026-11-23-3",
+  "updated": "2026-11-23 15:05 Paris",
   "plans": [
     {
       "id": "XAUUSD-B4-sell",
@@ -13,6 +13,30 @@
       "stop": 3735,
       "target": 3505.3,
       "dec": 2
+    },
+    {
+      "id": "USDCHF-C1-buy",
+      "symbol": "USDCHF",
+      "strategy": "C",
+      "side": "buy",
+      "zone_lo": 0.8375,
+      "zone_hi": 0.8385,
+      "entry": 0.8385,
+      "stop": 0.836,
+      "target": 0.844,
+      "dec": 5
+    },
+    {
+      "id": "EURUSD-A3-sell",
+      "symbol": "EURUSD",
+      "strategy": "A",
+      "side": "sell",
+      "zone_lo": 1.0955,
+      "zone_hi": 1.0965,
+      "entry": 1.0955,
+      "stop": 1.097,
+      "target": 1.0925,
+      "dec": 5
     }
   ]
 }
